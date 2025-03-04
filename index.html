@@ -4,14 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BloxdTweaks Editor</title>
-    <link rel="icon" href="favicon.ico"> <!-- Ajoute ici ton favicon -->
+    <link rel="icon" href="favicon.ico"> <!-- Icône pour le site -->
     <style>
         body {
             background: url('https://iili.io/2LnOhhX.png') no-repeat center center fixed;
             background-size: cover;
             font-family: Arial, sans-serif;
             color: white;
+            transition: background-position 15s ease-out; /* Effet de mouvement lent de l'arrière-plan */
+            animation: moveBackground 30s infinite linear; /* Ajout de l'animation de mouvement de fond */
         }
+
+        @keyframes moveBackground {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
         .sidebar {
             position: fixed;
             left: 0;
@@ -21,11 +30,25 @@
             background: rgba(0, 0, 0, 0.8);
             padding: 10px;
             transition: transform 0.3s ease-in-out;
+            z-index: 10;
         }
+
+        .sidebar button {
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background-color: transparent;
+            border: none;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+        }
+
         .content {
             margin-left: 260px;
             padding: 20px;
         }
+
         .bar {
             width: 300px;
             height: 30px;
@@ -38,22 +61,21 @@
             position: relative;
             box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
         }
-        .bar span {
-            position: absolute;
-            color: black;
-            font-weight: bold;
-        }
+
         #shieldBar {
             background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
             background-size: 100% 200%;
         }
+
         #healthBar {
             background: linear-gradient(60deg, red, orange);
             background-size: 100% 100%;
         }
+
         .buttons {
             margin-top: 20px;
         }
+
         button {
             padding: 10px;
             margin: 5px;
@@ -61,13 +83,22 @@
             border-radius: 5px;
             cursor: pointer;
         }
+
         #downloadBtn {
             background-color: gray;
             cursor: not-allowed;
         }
-        .color-picker-container {
+
+        .color-picker-wrapper {
+            display: flex;
+            flex-direction: column;
             margin-bottom: 20px;
         }
+
+        .color-picker-label {
+            margin-bottom: 10px;
+        }
+
         .color-box {
             display: inline-block;
             width: 30px;
@@ -76,14 +107,11 @@
             cursor: pointer;
             border: 2px solid #fff;
         }
-        .color-picker-wrapper {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 20px;
+
+        .color-picker-wrapper input {
+            margin-top: 10px;
         }
-        .color-picker-label {
-            margin-bottom: 10px;
-        }
+
     </style>
 </head>
 <body>
@@ -110,26 +138,20 @@
             <span>40/40</span>
         </div>
         <div class="color-picker-wrapper" id="shieldColorPickerWrapper">
-            <div class="color-picker-label">Select ShieldBar Color & Opacity:</div>
+            <div class="color-picker-label">Select ShieldBar Color:</div>
             <input type="color" id="shieldColorPicker" onchange="updateColor('shield')">
-            <input type="range" id="shieldOpacity" min="0" max="100" value="100" onchange="updateOpacity('shield')">
-            <label for="shieldOpacity">Opacity</label>
             <button onclick="addColor('shield')">Add Color</button>
         </div>
-        <div id="shieldColors"></div>
-        
+
         <h2>Health Bar</h2>
         <div id="healthBar" class="bar">
             <span>100/100</span>
         </div>
         <div class="color-picker-wrapper" id="healthColorPickerWrapper">
-            <div class="color-picker-label">Select HealthBar Color & Opacity:</div>
+            <div class="color-picker-label">Select HealthBar Color:</div>
             <input type="color" id="healthColorPicker" onchange="updateColor('health')">
-            <input type="range" id="healthOpacity" min="0" max="100" value="100" onchange="updateOpacity('health')">
-            <label for="healthOpacity">Opacity</label>
             <button onclick="addColor('health')">Add Color</button>
         </div>
-        <div id="healthColors"></div>
         
         <div class="buttons">
             <label for="shieldAngle">ShieldBar Direction:</label>
@@ -176,19 +198,6 @@
             updateBar();
         }
 
-        function updateOpacity(barType) {
-            let opacitySlider = barType === 'shield' ? document.getElementById('shieldOpacity') : document.getElementById('healthOpacity');
-            let opacity = opacitySlider.value / 100;
-
-            if (barType === 'shield') {
-                shieldOpacity = opacity;
-            } else {
-                healthOpacity = opacity;
-            }
-
-            updateBar();
-        }
-
         function addColor(barType) {
             let colorPicker = barType === 'shield' ? document.getElementById('shieldColorPicker') : document.getElementById('healthColorPicker');
             let color = colorPicker.value;
@@ -223,7 +232,7 @@
         }
 
         function changeColor(barType, index) {
-            let newColor = prompt('Enter new color code:', barType === 'shield' ? shieldColors[index] : healthColors[index]);
+            let newColor = prompt('Enter a new color code (e.g., #ff0000):', barType === 'shield' ? shieldColors[index] : healthColors[index]);
             if (newColor) {
                 if (barType === 'shield') {
                     shieldColors[index] = newColor;
