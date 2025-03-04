@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BloxdTweaks Editor</title>
+    <style>
+        body {
+            background: url('https://iili.io/2LnOhhX.png') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            overflow-x: hidden;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 250px;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            transition: transform 0.3s ease-in-out;
+            z-index: 100;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+        .sidebar button {
+            background: #444;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        .bar {
+            width: 300px;
+            height: 30px;
+            margin: 10px auto;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
+            position: relative;
+            overflow: hidden;
+        }
+        .bar::after {
+            content: "100/100";
+            position: absolute;
+            color: black;
+            font-weight: bold;
+        }
+        #shieldBar {
+            background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
+            background-size: 100% 200%;
+        }
+        #healthBar {
+            background: linear-gradient(60deg, red, orange);
+            background-size: 100% 100%;
+        }
+        .color-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .color-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
+            transition: 0.3s;
+        }
+        .color-box:hover {
+            opacity: 0.8;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #downloadBtn {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #444;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+        }
+        .dropdown-content button {
+            background: #444;
+            color: white;
+            padding: 10px;
+            width: 100%;
+            border: none;
+            cursor: pointer;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <button onclick="toggleSidebar()">☰</button>
+        <ul>
+            <li><button onclick="showEditor('healthbar')">Change Healthbar</button></li>
+            <li><button>Change UI</button></li>
+            <li><button>Change Hotbar</button></li>
+            <li><button>Change Buttons</button></li>
+            <li><button>Change Textures and Models</button></li>
+            <li><button>Change SkyBox</button></li>
+            <li><button>Others</button></li>
+        </ul>
+    </div>
+    <div class="content" id="editor">
+        <h1>Welcome to the BloxdTweaks Editor!!!</h1>
+    </div>
+    <div class="content" id="healthbarEditor" style="display: none;">
+        <h2>Shield Bar</h2>
+        <div id="shieldBar" class="bar"></div>
+        <h2>Health Bar</h2>
+        <div id="healthBar" class="bar"></div>
+        <div class="buttons">
+            <h3>Colors</h3>
+            <div class="color-container" id="colorContainer">
+                <div class="color-box" style="background-color: red;" onclick="selectColor('red')"></div>
+                <div class="color-box" style="background-color: orange;" onclick="selectColor('orange')"></div>
+            </div>
+            <input type="color" id="colorPicker" value="#ff0000">
+            <button onclick="addColor()">Add Color</button>
+            <div class="dropdown">
+                <button>Change Direction</button>
+                <div class="dropdown-content">
+                    <button onclick="changeGradient(0)">0°</button>
+                    <button onclick="changeGradient(45)">45°</button>
+                    <button onclick="changeGradient(90)">90°</button>
+                    <button onclick="changeGradient(135)">135°</button>
+                    <button onclick="changeGradient(180)">180°</button>
+                    <button onclick="changeGradient(225)">225°</button>
+                    <button onclick="changeGradient(270)">270°</button>
+                    <button onclick="changeGradient(315)">315°</button>
+                </div>
+            </div>
+            <button id="downloadBtn" onclick="downloadCSS()" disabled>Download</button>
+        </div>
+    </div>
+    
+    <script>
+        let colors = ['red', 'orange'];
+        let angle = 60;
+        let changed = false;
+        let deleteColorIndex = null;
+
+        function updateBar() {
+            let gradient = `linear-gradient(${angle}deg, ${colors.join(', ')})`;
+            document.getElementById('healthBar').style.background = gradient;
+            document.getElementById('shieldBar').style.background = gradient;
+            changed = true;
+            document.getElementById('downloadBtn').style.backgroundColor = "#ffb914";
+            document.getElementById('downloadBtn').disabled = false;
+            renderColorContainer();
+        }
+
+        function addColor() {
+            let color = document.getElementById('colorPicker').value;
+            colors.push(color);
+            updateBar();
+        }
+
+        function changeGradient(newAngle) {
+            angle = newAngle;
+            updateBar();
+        }
+
+        function renderColorContainer() {
+            const container = document.getElementById('colorContainer');
+            container.innerHTML = ''; // Clear existing colors
+            colors.forEach((color, index) => {
+                const colorBox = document.createElement('div');
+                colorBox.className = 'color-box';
+                colorBox.style.backgroundColor = color;
+                colorBox.onclick = () => selectColor(color, index);
+                colorBox.oncontextmenu = (e) => handleLongPress(e, color, index);
+                container.appendChild(colorBox);
+            });
+        }
+
+        function selectColor(color, index) {
+            alert(`You selected ${color}`);
+        }
+
+        function handleLongPress(event, color, index) {
+            event.preventDefault();
+            deleteColorIndex = index;
+            const confirmDelete = confirm("Do you want to delete this color?");
+            if (confirmDelete) {
+                colors.splice(deleteColorIndex, 1);
+                updateBar();
+            }
+        }
+
+        function downloadCSS() {
+            if (!changed) return;
+            let cssContent = `.ShieldBar, .HealthBar {\n  background: linear-gradient(${angle}deg, ${colors.join(', ')});\n}`;
+            let blob = new Blob([cssContent], { type: 'text/css' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = "changeHealthbar.css";
+            link.click();
+        }
+
+        function toggleSidebar() {
+            let sidebar = document.querySelector('.sidebar');
+            sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
+        }
+
+        function showEditor(editor) {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('healthbarEditor').style.display = 'none';
+            if (editor === 'healthbar') {
+                document.getElementById('healthbarEditor').style.display = 'block';
+            }
+        }
+        
+        // Initial render
+        renderColorContainer();
+    </script>
+</body>
+</html>
