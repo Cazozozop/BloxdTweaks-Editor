@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BloxdTweaks Editor</title>
+    <link rel="icon" href="favicon.ico"> <!-- Ajoute ici ton favicon -->
     <style>
         body {
             background: url('https://iili.io/2LnOhhX.png') no-repeat center center fixed;
@@ -86,7 +87,7 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <button onclick="toggleSidebar()">☰</button>
         <ul>
             <li><button onclick="showEditor('healthbarEditor')">Change Healthbar</button></li>
@@ -277,8 +278,12 @@
         }
 
         function toggleSidebar() {
-            let sidebar = document.querySelector('.sidebar');
-            sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
+            let sidebar = document.getElementById('sidebar');
+            if (sidebar.style.transform === 'translateX(-250px)') {
+                sidebar.style.transform = 'translateX(0)';
+            } else {
+                sidebar.style.transform = 'translateX(-250px)';
+            }
         }
 
         function showEditor(editorId) {
