@@ -44,32 +44,20 @@
             margin-left: 260px;
             padding: 20px;
         }
-        .bar {
-            width: 300px;
-            height: 30px;
-            margin: 10px auto;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
+        .BottomScreenStatBar {
+            height: 2.5rem;
             position: relative;
-            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(.18, .89, .32, 1.28);
         }
-        .bar::after {
-            content: "100/100";
-            position: absolute;
-            color: black;
-            font-weight: bold;
-        }
-        #shieldBar {
+        .ShieldBar {
             background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
             background-size: 100% 200%;
+            box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
         }
-        #healthBar {
+        .HealthBar {
             background: linear-gradient(60deg, red, orange);
             background-size: 100% 100%;
+            box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
         }
         .color-container {
             display: flex;
@@ -97,6 +85,12 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            background-color: #ffb914;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #fcd373;
         }
         #downloadBtn {
             background-color: gray;
@@ -125,6 +119,14 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+        #colorPickerContainer {
+            margin-top: 10px;
+        }
+        #colorPicker {
+            padding: 5px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -145,20 +147,25 @@
     </div>
     <div class="content" id="healthbarEditor" style="display: none;">
         <h2>Shield Bar</h2>
-        <div id="shieldBar" class="bar"></div>
+        <div class="BottomScreenStatBar ShieldBar" id="shieldBar"></div>
         <h2>Health Bar</h2>
-        <div id="healthBar" class="bar"></div>
+        <div class="BottomScreenStatBar HealthBar" id="healthBar"></div>
         <div class="buttons">
             <h3>Change Colors</h3>
             <div class="color-container" id="colorContainer">
                 <div class="color-box" style="background-color: red;" onclick="selectColor('shield', 'red')"></div>
                 <div class="color-box" style="background-color: orange;" onclick="selectColor('shield', 'orange')"></div>
-                <div class="color-box" style="background-color: blue;" onclick="selectColor('health', 'blue')"></div>
+                <div class="color-box" style="background-color: yellow;" onclick="selectColor('health', 'yellow')"></div>
                 <div class="color-box" style="background-color: green;" onclick="selectColor('health', 'green')"></div>
+                <div class="color-box" style="background-color: blue;" onclick="selectColor('shield', 'blue')"></div>
+                <div class="color-box" style="background-color: purple;" onclick="selectColor('shield', 'purple')"></div>
+                <div class="color-box" style="background-color: pink;" onclick="selectColor('health', 'pink')"></div>
             </div>
-            <input type="color" id="colorPicker" value="#ff0000">
-            <button onclick="addColor()">Add Color to Shield</button>
-            <button onclick="addColorHealth()">Add Color to Health</button>
+            <div id="colorPickerContainer">
+                <label for="colorPicker">Choose Custom Color:</label>
+                <input type="color" id="colorPicker" value="#ff0000">
+                <button onclick="applyCustomColor()">Apply Custom Color</button>
+            </div>
             <div class="dropdown">
                 <button>Change Direction</button>
                 <div class="dropdown-content">
@@ -175,10 +182,10 @@
             <button id="downloadBtn" onclick="downloadCSS()" disabled>Download</button>
         </div>
     </div>
-    
+
     <script>
         let shieldColors = ['red', 'orange'];
-        let healthColors = ['blue', 'green'];
+        let healthColors = ['yellow', 'green'];
         let angle = 60;
         let changed = false;
 
@@ -193,24 +200,19 @@
             document.getElementById('downloadBtn').disabled = false;
         }
 
-        function addColor() {
-            let color = document.getElementById('colorPicker').value;
-            shieldColors.push(color);
-            updateBar();
-        }
-
-        function addColorHealth() {
-            let color = document.getElementById('colorPicker').value;
-            healthColors.push(color);
-            updateBar();
-        }
-
         function selectColor(barType, color) {
             if (barType === 'shield') {
                 shieldColors.push(color);
             } else if (barType === 'health') {
                 healthColors.push(color);
             }
+            updateBar();
+        }
+
+        function applyCustomColor() {
+            let color = document.getElementById('colorPicker').value;
+            shieldColors.push(color);
+            healthColors.push(color);
             updateBar();
         }
 
@@ -221,29 +223,31 @@
 
         function downloadCSS() {
             if (!changed) return;
-            let cssContent = `.ShieldBar, .HealthBar {\n  background: linear-gradient(${angle}deg, ${shieldColors.join(', ')});\n  background: linear-gradient(${angle}deg, ${healthColors.join(', ')});\n}`;
+            let cssContent = `
+                .ShieldBar {
+                    background: linear-gradient(${angle}deg, ${shieldColors.join(', ')});
+                }
+                .HealthBar {
+                    background: linear-gradient(${angle}deg, ${healthColors.join(', ')});
+                }
+            `;
             let blob = new Blob([cssContent], { type: 'text/css' });
+            let url = URL.createObjectURL(blob);
             let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = "changeHealthbar.css";
+            link.href = url;
+            link.download = 'customHealthBar.css';
             link.click();
+        }
+
+        function showEditor(editorType) {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('healthbarEditor').style.display = 'block';
         }
 
         function toggleSidebar() {
             let sidebar = document.querySelector('.sidebar');
             sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
         }
-
-        function showEditor(editor) {
-            document.getElementById('editor').style.display = 'none';
-            document.getElementById('healthbarEditor').style.display = 'none';
-            if (editor === 'healthbar') {
-                document.getElementById('healthbarEditor').style.display = 'block';
-            }
-        }
-        
-        // Initial render
-        updateBar();
     </script>
 </body>
 </html>
