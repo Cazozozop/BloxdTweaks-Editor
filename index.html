@@ -11,14 +11,7 @@
             background-size: cover;
             font-family: Arial, sans-serif;
             color: white;
-            transition: background-position 15s ease-out; /* Effet de mouvement lent de l'arrière-plan */
-            animation: moveBackground 30s infinite linear; /* Ajout de l'animation de mouvement de fond */
-        }
-
-        @keyframes moveBackground {
-            0% { background-position: 0% 0%; }
-            50% { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
+            transition: background-position 30s ease; /* Mouvement fluide de l'arrière-plan */
         }
 
         .sidebar {
@@ -29,11 +22,30 @@
             height: 100vh;
             background: rgba(0, 0, 0, 0.8);
             padding: 10px;
-            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
             z-index: 10;
+            transition: transform 0.3s ease-in-out;
         }
 
         .sidebar button {
+            background-color: transparent;
+            border: none;
+            font-size: 18px;
+            color: white;
+            margin: 10px 0;
+            padding: 10px;
+            cursor: pointer;
+            text-align: left;
+            transition: background 0.2s ease;
+        }
+
+        .sidebar button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar .close-btn {
             position: absolute;
             top: 20px;
             right: -30px;
@@ -63,7 +75,7 @@
         }
 
         #shieldBar {
-            background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
+            background: linear-gradient(45deg, #ffb914, #fee9b9);
             background-size: 100% 200%;
         }
 
@@ -99,15 +111,6 @@
             margin-bottom: 10px;
         }
 
-        .color-box {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            margin: 5px;
-            cursor: pointer;
-            border: 2px solid #fff;
-        }
-
         .color-picker-wrapper input {
             margin-top: 10px;
         }
@@ -117,15 +120,13 @@
 <body>
     <div class="sidebar" id="sidebar">
         <button onclick="toggleSidebar()">☰</button>
-        <ul>
-            <li><button onclick="showEditor('healthbarEditor')">Change Healthbar</button></li>
-            <li><button>Change UI</button></li>
-            <li><button>Change Hotbar</button></li>
-            <li><button>Change Buttons</button></li>
-            <li><button>Change Textures and Models</button></li>
-            <li><button>Change SkyBox</button></li>
-            <li><button>Others</button></li>
-        </ul>
+        <button onclick="showEditor('healthbarEditor')">Change Healthbar</button>
+        <button>Change UI</button>
+        <button>Change Hotbar</button>
+        <button>Change Buttons</button>
+        <button>Change Textures and Models</button>
+        <button>Change SkyBox</button>
+        <button>Others</button>
     </div>
 
     <div class="content" id="editor">
@@ -264,26 +265,6 @@
                 healthAngle = angleSlider.value;
             }
             updateBar();
-        }
-
-        function downloadCSS() {
-            let css = `
-                #shieldBar {
-                    background: linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')});
-                    opacity: ${shieldOpacity};
-                    box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
-                }
-                #healthBar {
-                    background: linear-gradient(${healthAngle}deg, ${healthColors.join(', ')});
-                    opacity: ${healthOpacity};
-                    box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
-                }
-            `;
-            let blob = new Blob([css], {type: 'text/css'});
-            let link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'customStyles.css';
-            link.click();
         }
 
         function toggleSidebar() {
