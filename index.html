@@ -48,6 +48,7 @@
             height: 2.5rem;
             position: relative;
             transition: transform 0.25s cubic-bezier(.18, .89, .32, 1.28);
+            cursor: pointer; /* Ajouté pour rendre la barre cliquable */
         }
         .ShieldBar {
             background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
@@ -69,27 +70,10 @@
             font-size: 1rem;
             font-weight: bold;
             color: white;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Contour autour du texte */
             border: 2px solid black;
             padding: 0.1rem 0.3rem;
             border-radius: 5px;
-        }
-        .color-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .color-box {
-            width: 40px;
-            height: 40px;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.6);
-            transition: 0.3s;
-        }
-        .color-box:hover {
-            opacity: 0.8;
         }
         .buttons {
             margin-top: 20px;
@@ -134,14 +118,6 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
-        #colorPickerContainer {
-            margin-top: 10px;
-        }
-        #colorPicker {
-            padding: 5px;
-            border-radius: 5px;
-            background-color: #fff;
-        }
     </style>
 </head>
 <body>
@@ -162,50 +138,16 @@
     </div>
     <div class="content" id="healthbarEditor" style="display: none;">
         <h2>Shield Bar</h2>
-        <div class="BottomScreenStatBar ShieldBar" id="shieldBar">
+        <div class="BottomScreenStatBar ShieldBar" id="shieldBar" onclick="changeShieldBarColor()">
             <div class="center-text" id="shieldBarText">40/40</div>
         </div>
         <h2>Health Bar</h2>
-        <div class="BottomScreenStatBar HealthBar" id="healthBar">
+        <div class="BottomScreenStatBar HealthBar" id="healthBar" onclick="changeHealthBarColor()">
             <div class="center-text" id="healthBarText">100/100</div>
         </div>
         <div class="buttons">
             <h3>Change Colors</h3>
-            <div class="color-container" id="colorContainer">
-                <div class="color-box" style="background-color: red;" onclick="selectColor('shield', 'red')"></div>
-                <div class="color-box" style="background-color: orange;" onclick="selectColor('shield', 'orange')"></div>
-                <div class="color-box" style="background-color: yellow;" onclick="selectColor('health', 'yellow')"></div>
-                <div class="color-box" style="background-color: green;" onclick="selectColor('health', 'green')"></div>
-                <div class="color-box" style="background-color: blue;" onclick="selectColor('shield', 'blue')"></div>
-                <div class="color-box" style="background-color: purple;" onclick="selectColor('shield', 'purple')"></div>
-                <div class="color-box" style="background-color: pink;" onclick="selectColor('health', 'pink')"></div>
-            </div>
-            <div class="dropdown">
-                <button>Change Direction (Shield)</button>
-                <div class="dropdown-content">
-                    <button onclick="changeGradient('shield', 0)">0°</button>
-                    <button onclick="changeGradient('shield', 45)">45°</button>
-                    <button onclick="changeGradient('shield', 90)">90°</button>
-                    <button onclick="changeGradient('shield', 135)">135°</button>
-                    <button onclick="changeGradient('shield', 180)">180°</button>
-                    <button onclick="changeGradient('shield', 225)">225°</button>
-                    <button onclick="changeGradient('shield', 270)">270°</button>
-                    <button onclick="changeGradient('shield', 315)">315°</button>
-                </div>
-            </div>
-            <div class="dropdown">
-                <button>Change Direction (Health)</button>
-                <div class="dropdown-content">
-                    <button onclick="changeGradient('health', 0)">0°</button>
-                    <button onclick="changeGradient('health', 45)">45°</button>
-                    <button onclick="changeGradient('health', 90)">90°</button>
-                    <button onclick="changeGradient('health', 135)">135°</button>
-                    <button onclick="changeGradient('health', 180)">180°</button>
-                    <button onclick="changeGradient('health', 225)">225°</button>
-                    <button onclick="changeGradient('health', 270)">270°</button>
-                    <button onclick="changeGradient('health', 315)">315°</button>
-                </div>
-            </div>
+            <button onclick="resetBarColors()">Reset Bar Colors</button>
         </div>
     </div>
     <script>
@@ -214,31 +156,33 @@
         let shieldAngle = 45;
         let healthAngle = 60;
 
-        function selectColor(bar, color) {
-            if (bar === 'shield') {
-                shieldColors = [color];
-                document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
-            } else if (bar === 'health') {
-                healthColors = [color];
-                document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
-            }
+        // Fonction pour changer la couleur de la barre de bouclier
+        function changeShieldBarColor() {
+            shieldColors = ['#00ff00']; // Change la couleur de la barre de bouclier à vert
+            document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
         }
 
-        function changeGradient(bar, angle) {
-            if (bar === 'shield') {
-                shieldAngle = angle;
-                document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
-            } else if (bar === 'health') {
-                healthAngle = angle;
-                document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
-            }
+        // Fonction pour changer la couleur de la barre de santé
+        function changeHealthBarColor() {
+            healthColors = ['#0000ff']; // Change la couleur de la barre de santé à bleu
+            document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
         }
 
+        // Fonction pour réinitialiser les couleurs des barres
+        function resetBarColors() {
+            shieldColors = ['#ffb914', '#fee9b9', '#ffb914'];
+            healthColors = ['red', 'orange'];
+            document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
+            document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
+        }
+
+        // Toggle la sidebar
         function toggleSidebar() {
             let sidebar = document.querySelector('.sidebar');
             sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
         }
 
+        // Affiche l'éditeur de healthbar
         function showEditor(editorType) {
             document.getElementById('editor').style.display = 'none';
             document.getElementById('healthbarEditor').style.display = 'block';
