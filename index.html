@@ -261,10 +261,12 @@
                 #shieldBar {
                     background: linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')});
                     opacity: ${shieldOpacity};
+                    box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
                 }
                 #healthBar {
                     background: linear-gradient(${healthAngle}deg, ${healthColors.join(', ')});
                     opacity: ${healthOpacity};
+                    box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
                 }
             `;
             let blob = new Blob([css], {type: 'text/css'});
