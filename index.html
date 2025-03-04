@@ -75,6 +75,14 @@
             cursor: pointer;
             border: 2px solid #fff;
         }
+        .color-picker-wrapper {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+        .color-picker-label {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -100,9 +108,11 @@
         <div id="shieldBar" class="bar">
             <span>40/40</span>
         </div>
-        <div class="color-picker-container">
-            <label>Add new color to ShieldBar:</label>
-            <input type="color" id="shieldColorPicker">
+        <div class="color-picker-wrapper" id="shieldColorPickerWrapper">
+            <div class="color-picker-label">Select ShieldBar Color & Opacity:</div>
+            <input type="color" id="shieldColorPicker" onchange="updateColor('shield')">
+            <input type="range" id="shieldOpacity" min="0" max="100" value="100" onchange="updateOpacity('shield')">
+            <label for="shieldOpacity">Opacity</label>
             <button onclick="addColor('shield')">Add Color</button>
         </div>
         <div id="shieldColors"></div>
@@ -111,9 +121,11 @@
         <div id="healthBar" class="bar">
             <span>100/100</span>
         </div>
-        <div class="color-picker-container">
-            <label>Add new color to HealthBar:</label>
-            <input type="color" id="healthColorPicker">
+        <div class="color-picker-wrapper" id="healthColorPickerWrapper">
+            <div class="color-picker-label">Select HealthBar Color & Opacity:</div>
+            <input type="color" id="healthColorPicker" onchange="updateColor('health')">
+            <input type="range" id="healthOpacity" min="0" max="100" value="100" onchange="updateOpacity('health')">
+            <label for="healthOpacity">Opacity</label>
             <button onclick="addColor('health')">Add Color</button>
         </div>
         <div id="healthColors"></div>
@@ -132,6 +144,8 @@
     <script>
         let shieldColors = ['#ffb914', '#fee9b9'];
         let healthColors = ['#ff0000', '#ffa500'];
+        let shieldOpacity = 1;
+        let healthOpacity = 1;
         let shieldAngle = 45;
         let healthAngle = 60;
         let changed = false;
@@ -141,9 +155,37 @@
             let healthGradient = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
             document.getElementById('shieldBar').style.background = shieldGradient;
             document.getElementById('healthBar').style.background = healthGradient;
+            document.getElementById('shieldBar').style.opacity = shieldOpacity;
+            document.getElementById('healthBar').style.opacity = healthOpacity;
             changed = true;
             document.getElementById('downloadBtn').style.backgroundColor = "#ffb914";
             document.getElementById('downloadBtn').disabled = false;
+        }
+
+        function updateColor(barType) {
+            let colorPicker = barType === 'shield' ? document.getElementById('shieldColorPicker') : document.getElementById('healthColorPicker');
+            let color = colorPicker.value;
+            
+            if (barType === 'shield') {
+                shieldColors[shieldColors.length - 1] = color;
+            } else {
+                healthColors[healthColors.length - 1] = color;
+            }
+
+            updateBar();
+        }
+
+        function updateOpacity(barType) {
+            let opacitySlider = barType === 'shield' ? document.getElementById('shieldOpacity') : document.getElementById('healthOpacity');
+            let opacity = opacitySlider.value / 100;
+
+            if (barType === 'shield') {
+                shieldOpacity = opacity;
+            } else {
+                healthOpacity = opacity;
+            }
+
+            updateBar();
         }
 
         function addColor(barType) {
@@ -193,7 +235,7 @@
         }
 
         function confirmDelete(barType, index) {
-            if (confirm('Do you want to delete this color?')) {
+            if (confirm('Are you sure you want to delete this color?')) {
                 if (barType === 'shield') {
                     shieldColors.splice(index, 1);
                 } else {
@@ -205,30 +247,31 @@
         }
 
         function updateDirection(barType) {
+            let angleSlider = barType === 'shield' ? document.getElementById('shieldAngle') : document.getElementById('healthAngle');
             if (barType === 'shield') {
-                shieldAngle = document.getElementById('shieldAngle').value;
+                shieldAngle = angleSlider.value;
             } else {
-                healthAngle = document.getElementById('healthAngle').value;
+                healthAngle = angleSlider.value;
             }
             updateBar();
         }
 
         function downloadCSS() {
-            if (!changed) return;
-            let cssContent = `.ShieldBar {\n  background: linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')});\n}\n.HealthBar {\n  background: linear-gradient(${healthAngle}deg, ${healthColors.join(', ')});\n}`;
-            let blob = new Blob([cssContent], { type: 'text/css' });
+            let css = `
+                #shieldBar {
+                    background: linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')});
+                    opacity: ${shieldOpacity};
+                }
+                #healthBar {
+                    background: linear-gradient(${healthAngle}deg, ${healthColors.join(', ')});
+                    opacity: ${healthOpacity};
+                }
+            `;
+            let blob = new Blob([css], {type: 'text/css'});
             let link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = "changeHealthbar.css";
+            link.download = 'customStyles.css';
             link.click();
-        }
-
-        function showEditor(editor) {
-            document.getElementById('editor').style.display = 'none';
-            document.getElementById('healthbarEditor').style.display = 'none';
-            if (editor === 'healthbar') {
-                document.getElementById('healthbarEditor').style.display = 'block';
-            }
         }
 
         function toggleSidebar() {
@@ -236,8 +279,11 @@
             sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
         }
 
-        displayColors('shield');
-        displayColors('health');
+        function showEditor(editorId) {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('healthbarEditor').style.display = 'none';
+            document.getElementById(editorId).style.display = 'block';
+        }
     </script>
 </body>
 </html>
