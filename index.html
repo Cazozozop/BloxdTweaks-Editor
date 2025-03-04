@@ -53,11 +53,26 @@
             background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
             background-size: 100% 200%;
             box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .HealthBar {
             background: linear-gradient(60deg, red, orange);
             background-size: 100% 100%;
             box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .center-text {
+            font-size: 1rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            border: 2px solid black;
+            padding: 0.1rem 0.3rem;
+            border-radius: 5px;
         }
         .color-container {
             display: flex;
@@ -147,9 +162,13 @@
     </div>
     <div class="content" id="healthbarEditor" style="display: none;">
         <h2>Shield Bar</h2>
-        <div class="BottomScreenStatBar ShieldBar" id="shieldBar"></div>
+        <div class="BottomScreenStatBar ShieldBar" id="shieldBar">
+            <div class="center-text" id="shieldBarText">40/40</div>
+        </div>
         <h2>Health Bar</h2>
-        <div class="BottomScreenStatBar HealthBar" id="healthBar"></div>
+        <div class="BottomScreenStatBar HealthBar" id="healthBar">
+            <div class="center-text" id="healthBarText">100/100</div>
+        </div>
         <div class="buttons">
             <h3>Change Colors</h3>
             <div class="color-container" id="colorContainer">
@@ -161,92 +180,68 @@
                 <div class="color-box" style="background-color: purple;" onclick="selectColor('shield', 'purple')"></div>
                 <div class="color-box" style="background-color: pink;" onclick="selectColor('health', 'pink')"></div>
             </div>
-            <div id="colorPickerContainer">
-                <label for="colorPicker">Choose Custom Color:</label>
-                <input type="color" id="colorPicker" value="#ff0000">
-                <button onclick="applyCustomColor()">Apply Custom Color</button>
-            </div>
             <div class="dropdown">
-                <button>Change Direction</button>
+                <button>Change Direction (Shield)</button>
                 <div class="dropdown-content">
-                    <button onclick="changeGradient(0)">0°</button>
-                    <button onclick="changeGradient(45)">45°</button>
-                    <button onclick="changeGradient(90)">90°</button>
-                    <button onclick="changeGradient(135)">135°</button>
-                    <button onclick="changeGradient(180)">180°</button>
-                    <button onclick="changeGradient(225)">225°</button>
-                    <button onclick="changeGradient(270)">270°</button>
-                    <button onclick="changeGradient(315)">315°</button>
+                    <button onclick="changeGradient('shield', 0)">0°</button>
+                    <button onclick="changeGradient('shield', 45)">45°</button>
+                    <button onclick="changeGradient('shield', 90)">90°</button>
+                    <button onclick="changeGradient('shield', 135)">135°</button>
+                    <button onclick="changeGradient('shield', 180)">180°</button>
+                    <button onclick="changeGradient('shield', 225)">225°</button>
+                    <button onclick="changeGradient('shield', 270)">270°</button>
+                    <button onclick="changeGradient('shield', 315)">315°</button>
                 </div>
             </div>
-            <button id="downloadBtn" onclick="downloadCSS()" disabled>Download</button>
+            <div class="dropdown">
+                <button>Change Direction (Health)</button>
+                <div class="dropdown-content">
+                    <button onclick="changeGradient('health', 0)">0°</button>
+                    <button onclick="changeGradient('health', 45)">45°</button>
+                    <button onclick="changeGradient('health', 90)">90°</button>
+                    <button onclick="changeGradient('health', 135)">135°</button>
+                    <button onclick="changeGradient('health', 180)">180°</button>
+                    <button onclick="changeGradient('health', 225)">225°</button>
+                    <button onclick="changeGradient('health', 270)">270°</button>
+                    <button onclick="changeGradient('health', 315)">315°</button>
+                </div>
+            </div>
         </div>
     </div>
-
     <script>
-        let shieldColors = ['red', 'orange'];
-        let healthColors = ['yellow', 'green'];
-        let angle = 60;
-        let changed = false;
+        let shieldColors = ['#ffb914', '#fee9b9', '#ffb914'];
+        let healthColors = ['red', 'orange'];
+        let shieldAngle = 45;
+        let healthAngle = 60;
 
-        function updateBar() {
-            let shieldGradient = `linear-gradient(${angle}deg, ${shieldColors.join(', ')})`;
-            let healthGradient = `linear-gradient(${angle}deg, ${healthColors.join(', ')})`;
-
-            document.getElementById('shieldBar').style.background = shieldGradient;
-            document.getElementById('healthBar').style.background = healthGradient;
-            changed = true;
-            document.getElementById('downloadBtn').style.backgroundColor = "#ffb914";
-            document.getElementById('downloadBtn').disabled = false;
-        }
-
-        function selectColor(barType, color) {
-            if (barType === 'shield') {
-                shieldColors.push(color);
-            } else if (barType === 'health') {
-                healthColors.push(color);
+        function selectColor(bar, color) {
+            if (bar === 'shield') {
+                shieldColors = [color];
+                document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
+            } else if (bar === 'health') {
+                healthColors = [color];
+                document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
             }
-            updateBar();
         }
 
-        function applyCustomColor() {
-            let color = document.getElementById('colorPicker').value;
-            shieldColors.push(color);
-            healthColors.push(color);
-            updateBar();
-        }
-
-        function changeGradient(newAngle) {
-            angle = newAngle;
-            updateBar();
-        }
-
-        function downloadCSS() {
-            if (!changed) return;
-            let cssContent = `
-                .ShieldBar {
-                    background: linear-gradient(${angle}deg, ${shieldColors.join(', ')});
-                }
-                .HealthBar {
-                    background: linear-gradient(${angle}deg, ${healthColors.join(', ')});
-                }
-            `;
-            let blob = new Blob([cssContent], { type: 'text/css' });
-            let url = URL.createObjectURL(blob);
-            let link = document.createElement('a');
-            link.href = url;
-            link.download = 'customHealthBar.css';
-            link.click();
-        }
-
-        function showEditor(editorType) {
-            document.getElementById('editor').style.display = 'none';
-            document.getElementById('healthbarEditor').style.display = 'block';
+        function changeGradient(bar, angle) {
+            if (bar === 'shield') {
+                shieldAngle = angle;
+                document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
+            } else if (bar === 'health') {
+                healthAngle = angle;
+                document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
+            }
         }
 
         function toggleSidebar() {
             let sidebar = document.querySelector('.sidebar');
             sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
+        }
+
+        function showEditor(editorType) {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('healthbarEditor').style.display = 'block';
         }
     </script>
 </body>
