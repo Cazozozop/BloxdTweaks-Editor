@@ -10,7 +10,6 @@
             background-size: cover;
             font-family: Arial, sans-serif;
             color: white;
-            overflow-x: hidden;
         }
         .sidebar {
             position: fixed;
@@ -21,59 +20,35 @@
             background: rgba(0, 0, 0, 0.8);
             padding: 10px;
             transition: transform 0.3s ease-in-out;
-            z-index: 100;
-        }
-        .sidebar ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .sidebar ul li {
-            margin: 10px 0;
-        }
-        .sidebar button {
-            background: #444;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
         }
         .content {
             margin-left: 260px;
             padding: 20px;
         }
-        .BottomScreenStatBar {
-            height: 2.5rem;
+        .bar {
+            width: 300px;
+            height: 30px;
+            margin: 10px auto;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
             position: relative;
-            transition: transform 0.25s cubic-bezier(.18, .89, .32, 1.28);
-            cursor: pointer; /* Ajouté pour rendre la barre cliquable */
+            box-shadow: inset 0 4px 0 0 #ffffff1a, inset 0 -4px 0 0 #0000001a;
         }
-        .ShieldBar {
+        .bar span {
+            position: absolute;
+            color: black;
+            font-weight: bold;
+        }
+        #shieldBar {
             background: linear-gradient(45deg, #ffb914, #fee9b9, #ffb914, #fee9b9, #fcd373, #fee9b9, #ffb914, #fee9b9, #ffb914);
             background-size: 100% 200%;
-            box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .HealthBar {
+        #healthBar {
             background: linear-gradient(60deg, red, orange);
             background-size: 100% 100%;
-            box-shadow: inset 0 .4rem 0 0 #ffffff1a, inset 0 -.4rem 0 0 #0000001a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .center-text {
-            font-size: 1rem;
-            font-weight: bold;
-            color: white;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Contour autour du texte */
-            border: 2px solid black;
-            padding: 0.1rem 0.3rem;
-            border-radius: 5px;
         }
         .buttons {
             margin-top: 20px;
@@ -84,39 +59,21 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            background-color: #ffb914;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
-            transition: 0.3s;
-        }
-        button:hover {
-            background-color: #fcd373;
         }
         #downloadBtn {
             background-color: gray;
             cursor: not-allowed;
         }
-        .dropdown {
-            position: relative;
+        .color-picker-container {
+            margin-bottom: 20px;
+        }
+        .color-box {
             display: inline-block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #444;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-        .dropdown-content button {
-            background: #444;
-            color: white;
-            padding: 10px;
-            width: 100%;
-            border: none;
+            width: 30px;
+            height: 30px;
+            margin: 5px;
             cursor: pointer;
-        }
-        .dropdown:hover .dropdown-content {
-            display: block;
+            border: 2px solid #fff;
         }
     </style>
 </head>
@@ -133,60 +90,154 @@
             <li><button>Others</button></li>
         </ul>
     </div>
+
     <div class="content" id="editor">
         <h1>Welcome to the BloxdTweaks Editor!!!</h1>
     </div>
+    
     <div class="content" id="healthbarEditor" style="display: none;">
         <h2>Shield Bar</h2>
-        <div class="BottomScreenStatBar ShieldBar" id="shieldBar" onclick="changeShieldBarColor()">
-            <div class="center-text" id="shieldBarText">40/40</div>
+        <div id="shieldBar" class="bar">
+            <span>40/40</span>
         </div>
+        <div class="color-picker-container">
+            <label>Add new color to ShieldBar:</label>
+            <input type="color" id="shieldColorPicker">
+            <button onclick="addColor('shield')">Add Color</button>
+        </div>
+        <div id="shieldColors"></div>
+        
         <h2>Health Bar</h2>
-        <div class="BottomScreenStatBar HealthBar" id="healthBar" onclick="changeHealthBarColor()">
-            <div class="center-text" id="healthBarText">100/100</div>
+        <div id="healthBar" class="bar">
+            <span>100/100</span>
         </div>
+        <div class="color-picker-container">
+            <label>Add new color to HealthBar:</label>
+            <input type="color" id="healthColorPicker">
+            <button onclick="addColor('health')">Add Color</button>
+        </div>
+        <div id="healthColors"></div>
+        
         <div class="buttons">
-            <h3>Change Colors</h3>
-            <button onclick="resetBarColors()">Reset Bar Colors</button>
+            <label for="shieldAngle">ShieldBar Direction:</label>
+            <input type="range" id="shieldAngle" min="0" max="360" value="45" onchange="updateDirection('shield')">
+            <br>
+            <label for="healthAngle">HealthBar Direction:</label>
+            <input type="range" id="healthAngle" min="0" max="360" value="60" onchange="updateDirection('health')">
+            <br>
+            <button id="downloadBtn" onclick="downloadCSS()" disabled>Download CSS</button>
         </div>
     </div>
+
     <script>
-        let shieldColors = ['#ffb914', '#fee9b9', '#ffb914'];
-        let healthColors = ['red', 'orange'];
+        let shieldColors = ['#ffb914', '#fee9b9'];
+        let healthColors = ['#ff0000', '#ffa500'];
         let shieldAngle = 45;
         let healthAngle = 60;
+        let changed = false;
 
-        // Fonction pour changer la couleur de la barre de bouclier
-        function changeShieldBarColor() {
-            shieldColors = ['#00ff00']; // Change la couleur de la barre de bouclier à vert
-            document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
+        function updateBar() {
+            let shieldGradient = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
+            let healthGradient = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
+            document.getElementById('shieldBar').style.background = shieldGradient;
+            document.getElementById('healthBar').style.background = healthGradient;
+            changed = true;
+            document.getElementById('downloadBtn').style.backgroundColor = "#ffb914";
+            document.getElementById('downloadBtn').disabled = false;
         }
 
-        // Fonction pour changer la couleur de la barre de santé
-        function changeHealthBarColor() {
-            healthColors = ['#0000ff']; // Change la couleur de la barre de santé à bleu
-            document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
+        function addColor(barType) {
+            let colorPicker = barType === 'shield' ? document.getElementById('shieldColorPicker') : document.getElementById('healthColorPicker');
+            let color = colorPicker.value;
+
+            if (barType === 'shield') {
+                shieldColors.push(color);
+                displayColors('shield');
+            } else {
+                healthColors.push(color);
+                displayColors('health');
+            }
+
+            updateBar();
         }
 
-        // Fonction pour réinitialiser les couleurs des barres
-        function resetBarColors() {
-            shieldColors = ['#ffb914', '#fee9b9', '#ffb914'];
-            healthColors = ['red', 'orange'];
-            document.getElementById('shieldBar').style.background = `linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')})`;
-            document.getElementById('healthBar').style.background = `linear-gradient(${healthAngle}deg, ${healthColors.join(', ')})`;
+        function displayColors(barType) {
+            let colorContainer = barType === 'shield' ? document.getElementById('shieldColors') : document.getElementById('healthColors');
+            let colors = barType === 'shield' ? shieldColors : healthColors;
+
+            colorContainer.innerHTML = '';
+            colors.forEach((color, index) => {
+                let colorBox = document.createElement('div');
+                colorBox.classList.add('color-box');
+                colorBox.style.backgroundColor = color;
+                colorBox.onclick = () => changeColor(barType, index);
+                colorBox.oncontextmenu = (e) => {
+                    e.preventDefault();
+                    confirmDelete(barType, index);
+                };
+                colorContainer.appendChild(colorBox);
+            });
         }
 
-        // Toggle la sidebar
+        function changeColor(barType, index) {
+            let newColor = prompt('Enter new color code:', barType === 'shield' ? shieldColors[index] : healthColors[index]);
+            if (newColor) {
+                if (barType === 'shield') {
+                    shieldColors[index] = newColor;
+                } else {
+                    healthColors[index] = newColor;
+                }
+                displayColors(barType);
+                updateBar();
+            }
+        }
+
+        function confirmDelete(barType, index) {
+            if (confirm('Do you want to delete this color?')) {
+                if (barType === 'shield') {
+                    shieldColors.splice(index, 1);
+                } else {
+                    healthColors.splice(index, 1);
+                }
+                displayColors(barType);
+                updateBar();
+            }
+        }
+
+        function updateDirection(barType) {
+            if (barType === 'shield') {
+                shieldAngle = document.getElementById('shieldAngle').value;
+            } else {
+                healthAngle = document.getElementById('healthAngle').value;
+            }
+            updateBar();
+        }
+
+        function downloadCSS() {
+            if (!changed) return;
+            let cssContent = `.ShieldBar {\n  background: linear-gradient(${shieldAngle}deg, ${shieldColors.join(', ')});\n}\n.HealthBar {\n  background: linear-gradient(${healthAngle}deg, ${healthColors.join(', ')});\n}`;
+            let blob = new Blob([cssContent], { type: 'text/css' });
+            let link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = "changeHealthbar.css";
+            link.click();
+        }
+
+        function showEditor(editor) {
+            document.getElementById('editor').style.display = 'none';
+            document.getElementById('healthbarEditor').style.display = 'none';
+            if (editor === 'healthbar') {
+                document.getElementById('healthbarEditor').style.display = 'block';
+            }
+        }
+
         function toggleSidebar() {
             let sidebar = document.querySelector('.sidebar');
             sidebar.style.transform = sidebar.style.transform === 'translateX(-250px)' ? 'translateX(0)' : 'translateX(-250px)';
         }
 
-        // Affiche l'éditeur de healthbar
-        function showEditor(editorType) {
-            document.getElementById('editor').style.display = 'none';
-            document.getElementById('healthbarEditor').style.display = 'block';
-        }
+        displayColors('shield');
+        displayColors('health');
     </script>
 </body>
 </html>
